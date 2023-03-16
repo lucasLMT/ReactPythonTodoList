@@ -1,32 +1,25 @@
 import React, { Component, useState } from "react";
 import { todosContext } from "./todosContext";
+import { FormValidator } from "../validator";
+import { toast } from "react-toastify";
 
 export default function UpdateTodos({ item, id }) {
   const [todo, setTodo] = useState(item);
-  const { todos, fetchTodos, updateTodos } = React.useContext(todosContext);
-  //const [new_todo, setNewTodo] = useState(todos);
-  //const [todos, setTodos] = useState([]);
-  console.log("todos1", todos);
+  const { todos, updateTodos } = React.useContext(todosContext);
 
   const updateTodo = async () => {
-    console.log("item", item, "id", id);
-    console.log("todos2", todos);
+    if (FormValidator.fieldIsEmpty(todo)) {
+      toast.error("The todo is empty.");
+      return;
+    }
+
     const originalTodos = [...todos];
 
     let updated_todo = todos.filter((t) => t.id === id);
     updated_todo[0].item = todo;
     const new_todo = { data: [...todos] };
-    console.log("new_todo", new_todo);
     updateTodos(new_todo);
-    console.log("todos3", todos);
-    console.log(updateTodos);
-    // const originalTodos = todos;
-    // let updated_todo = todos.filter((t) => t.id === id);
-    // console.log("updated_todo", updated_todo);
-    // updated_todo[0].item = item;
-    // console.log("updated_todo", updated_todo);
-    // setNewTodo(new_todo);
-    // console.log("new_todo", new_todo);
+
     try {
       await fetch(`http://localhost:8000/todos/${id}`, {
         method: "PUT",
@@ -35,16 +28,14 @@ export default function UpdateTodos({ item, id }) {
         },
         body: JSON.stringify({ item: todo }),
       });
-    } catch (error) {
-      console.log("Error");
+    } catch (ex) {
+      console.log(ex.message);
       updateTodos({ data: originalTodos });
     }
-    //await fetchTodos();
   };
 
   const handleChange = (event) => {
     setTodo(event.target.value);
-    console.log("todos4", todos);
   };
 
   return (
@@ -82,8 +73,7 @@ export default function UpdateTodos({ item, id }) {
                 type="text"
                 className="form-control"
                 id="new_todo"
-                readonly
-                //value={item}
+                value={todo}
                 onChange={handleChange}
               />
             </div>

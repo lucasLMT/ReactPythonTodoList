@@ -1,27 +1,45 @@
-import React, { Component } from "react";
+import { useContext, useState } from "react";
 import { todosContext } from "./todosContext";
+import { FormValidator } from "../validator";
+import { toast } from "react-toastify";
 
 export default function AddTodo() {
-  const [item, setItem] = React.useState("");
-  const { todos, fetchTodos } = React.useContext(todosContext);
+  const [item, setItem] = useState("");
+  const { todos, updateTodos } = useContext(todosContext);
 
   const handleInput = (event) => {
     setItem(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (FormValidator.fieldIsEmpty(item)) {
+      toast.error("A new todo can't be empty.");
+      return;
+    }
+
+    const originalTodos = [...todos];
+
     const new_todo = {
       id: todos.length + 1,
       item: item,
     };
 
-    fetch("http://localhost:8000/todos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(new_todo),
-    }).then(fetchTodos);
+    updateTodos({ data: [...todos, new_todo] });
+
+    try {
+      await fetch("http://localhost:8000/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(new_todo),
+      });
+    } catch (ex) {
+      updateTodos({ data: [...originalTodos] });
+      console.log(ex.message);
+    }
   };
 
   return (
@@ -31,6 +49,7 @@ export default function AddTodo() {
           New Todo:
         </label>
         <input
+          key="AddTodoInput"
           type="text"
           className="form-control"
           id="new_todo"
@@ -39,7 +58,11 @@ export default function AddTodo() {
         />
       </div>
       <div className="col-auto">
-        <button type="submit" className="btn btn-primary mb-3">
+        <button
+          key="AddTodoButton"
+          type="submit"
+          className="btn btn-primary mb-3"
+        >
           Submit
         </button>
       </div>

@@ -1,16 +1,19 @@
-import React, { Component, useEffect, useState } from "react";
-import AddTodo from "./addTodo";
-import DeleteTodo from "./deleteTodo";
+import { useEffect, useState } from "react";
 import { todosContext } from "./todosContext";
 import UpdateTodos from "./updateTodo";
+import AddTodo from "./addTodo";
+import DeleteTodo from "./deleteTodo";
 
 export default function Todos() {
   const [todos, setTodos] = useState([]);
+
   const fetchTodos = async () => {
+    console.log("fetchTodos");
     const response = await fetch("http://localhost:8000/todos");
     const todos = await response.json();
     setTodos(todos.data);
   };
+
   const updateTodos = (updated_todos) => {
     console.log("updateTodos", updated_todos.data);
     setTodos(updated_todos.data);
@@ -18,30 +21,31 @@ export default function Todos() {
 
   useEffect(() => {
     fetchTodos();
+    console.log("UseEffect");
   }, []);
 
   return (
     <todosContext.Provider value={{ todos, fetchTodos, updateTodos }}>
       <AddTodo key={"addTodoComponent"} />
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id + "li"}>
-            <div className="d-flex flex-row align-items-center">
-              <div className="p-2">{todo.item}</div>
-              <div className="p-2">
+      <table className="table table-border m-2 table-sm">
+        <tbody>
+          {todos.map((todo) => (
+            <tr key={todo.id + "tr"}>
+              <td>{todo.item}</td>
+              <td>
                 <UpdateTodos
                   key={todo.id + "Update"}
                   item={todo.item}
                   id={todo.id}
                 />
-              </div>
-              <div className="">
+              </td>
+              <td>
                 <DeleteTodo key={todo.id + "Delete"} id={todo.id} />
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </todosContext.Provider>
   );
 }
