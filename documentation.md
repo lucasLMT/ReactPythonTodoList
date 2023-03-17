@@ -25,3 +25,9 @@ import pydantic
 from bson.objectid import ObjectId
 pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
 ```
+
+### Miscellaneous
+
+# The use of the parameter projection remove the field "\_id", and it's a way of resolve our problem with the ObjectId.
+
+`todolist.find(projection={"_id": False})`

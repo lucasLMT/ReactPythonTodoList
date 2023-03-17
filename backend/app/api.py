@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from MongoDB.mongoProvider import getMongoDB
+from DataBaseProvider.repository import getMongoDB
+from DataBaseProvider.repository import getTodoRepo
 import pydantic
 from bson.objectid import ObjectId
 pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
 
 app = FastAPI()
+todoRepo = getTodoRepo()
 
 # List with all origins allowed to send requests
 origins = [
@@ -32,31 +34,15 @@ async def read_root() -> dict:
     return {"message": "Welcome to your todo list."}
 
 
-todos = [
-    {
-        "id": "1",
-        "item": "Read a book."
-    },
-    {
-        "id": "2",
-        "item": "Cycle around town."
-    }
-]
-
-
-# @app.get("/todos", tags=["todos"])
-# async def get_todos() -> dict:
-#     return {"data": todos}
-
 @app.get("/todos")
 async def get_todos() -> dict:
-    db = getMongoDB()
-    # The use of the parameter projection excluding the field _id resolves our problem with the ObjectId
-    todo = db.reactpythonapp.todolist.find(projection={"_id": False})
-    listTodo = list(todo)
-    data = dict({'data': listTodo})
-    # value = json_util.dumps(data)
-    return data
+    # db = getMongoDB()
+    # todo = db.reactpythonapp.todolist.find(projection={"_id": False})
+    # listTodo = list(todo)
+    # return dict({'data': listTodo})
+    # todo = todoRepo.filter_by().all()
+    listTodo = list(todoRepo)
+    return dict({'data': listTodo})
 
 
 @app.post("/todos", tags=["todos"])
