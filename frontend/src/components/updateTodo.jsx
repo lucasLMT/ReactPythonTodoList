@@ -21,13 +21,20 @@ export default function UpdateTodos({ item, id }) {
     updateTodos(new_todo);
 
     try {
-      await fetch(`http://localhost:8000/todos/${id}`, {
+      const response = await fetch(`http://localhost:8000/todos/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ item: todo }),
       });
+      const json = await response.json();
+      if (json.error) {
+        toast.error(json.error);
+        updateTodos({ data: originalTodos });
+      } else {
+        toast.success(json.message);
+      }
     } catch (ex) {
       console.log(ex.message);
       updateTodos({ data: originalTodos });
@@ -44,21 +51,21 @@ export default function UpdateTodos({ item, id }) {
         type="button"
         className="btn btn-primary"
         data-bs-toggle="modal"
-        data-bs-target={"#exampleModal" + id}
+        data-bs-target={"#modal" + id}
       >
         Update
       </button>
       <div
         className="modal fade"
-        id={"exampleModal" + id}
+        id={"modal" + id}
         tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
+        aria-labelledby="modalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">
+              <h1 className="modal-title fs-5" id="modalLabel">
                 Update Todo
               </h1>
               <button

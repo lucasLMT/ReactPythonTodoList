@@ -24,3 +24,7 @@
 `npm start`
 
 - Now at the address `localhost:3000`, we'll be able to see our application in execution.
+
+### Additional information
+
+- There's no need to set up the database. Once the MongoDB is installed at default address, the internal API can handle the database and collection creation that will be used.

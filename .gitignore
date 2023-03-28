@@ -5,4 +5,4 @@
 /virtualenv
 /.vscode
 /node_modules
-/backend/app/_pycache
+__pycache__/

@@ -21,23 +21,36 @@ export default function AddTodo() {
 
     const originalTodos = [...todos];
 
-    const new_todo = {
-      id: todos.length + 1,
+    let new_todo = {
       item: item,
     };
 
     updateTodos({ data: [...todos, new_todo] });
 
     try {
-      await fetch("http://localhost:8000/todos", {
+      const response = await fetch("http://localhost:8000/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(new_todo),
       });
+
+      const json = await response.json();
+      console.log("json", json);
+      if (json.error) {
+        toast.error(json.error);
+        updateTodos({ data: originalTodos });
+      } else if (json.consoleError) {
+        console.log(json.consoleError);
+        updateTodos({ data: originalTodos });
+      } else {
+        new_todo.id = json.id;
+        updateTodos({ data: [...todos, new_todo] });
+        toast.success(json.message);
+      }
     } catch (ex) {
-      updateTodos({ data: [...originalTodos] });
+      updateTodos({ data: originalTodos });
       console.log(ex.message);
     }
   };
