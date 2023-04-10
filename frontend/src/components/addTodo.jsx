@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
 import { todosContext } from "./todosContext";
+import { userContext } from "./userContext";
 import { FormValidator } from "../validator";
 import { toast } from "react-toastify";
 
 export default function AddTodo() {
   const [item, setItem] = useState("");
   const { todos, updateTodos } = useContext(todosContext);
+  const { profile } = useContext(userContext);
 
   const handleInput = (event) => {
     setItem(event.target.value);
@@ -20,15 +22,22 @@ export default function AddTodo() {
     }
 
     const originalTodos = [...todos];
+    console.log("originalTodos", originalTodos);
 
     let new_todo = {
       item: item,
+      user: profile.sub || "",
     };
 
     updateTodos({ data: [...todos, new_todo] });
+    console.log("AddTodos", originalTodos);
 
     try {
-      const response = await fetch("http://localhost:8000/todos", {
+      let addUrl = "http://localhost:8000/todos?user=";
+      if (profile && profile.sub) {
+        addUrl += profile.sub;
+      }
+      const response = await fetch(addUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

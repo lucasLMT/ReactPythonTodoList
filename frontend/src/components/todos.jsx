@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { todosContext } from "./todosContext";
+import { userContext } from "./userContext";
 import UpdateTodos from "./updateTodo";
 import AddTodo from "./addTodo";
 import DeleteTodo from "./deleteTodo";
 
 export default function Todos() {
   const [todos, setTodos] = useState([]);
+  const { profile } = useContext(userContext);
 
   const fetchTodos = async () => {
-    console.log("fetchTodos");
-    const response = await fetch("http://localhost:8000/todos");
+    let listUrl = "http://localhost:8000/todos?user=";
+    if (profile && profile.sub) {
+      listUrl += profile.sub;
+    }
+    console.log("fetchTodos", listUrl);
+    const response = await fetch(listUrl);
     const todos = await response.json();
     setTodos(todos.data);
+    console.log(todos.data);
   };
 
   const updateTodos = (updated_todos) => {

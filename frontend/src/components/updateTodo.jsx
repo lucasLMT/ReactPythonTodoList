@@ -1,11 +1,13 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import { todosContext } from "./todosContext";
+import { userContext } from "./userContext";
 import { FormValidator } from "../validator";
 import { toast } from "react-toastify";
 
 export default function UpdateTodos({ item, id }) {
   const [todo, setTodo] = useState(item);
   const { todos, updateTodos } = React.useContext(todosContext);
+  const { profile } = React.useContext(userContext);
 
   const updateTodo = async () => {
     if (FormValidator.fieldIsEmpty(todo)) {
@@ -13,24 +15,45 @@ export default function UpdateTodos({ item, id }) {
       return;
     }
 
-    const originalTodos = [...todos];
+    const originalTodos = todos.map((item) => {
+      return { ...item };
+    });
 
     let updated_todo = todos.filter((t) => t.id === id);
     updated_todo[0].item = todo;
-    const new_todo = { data: [...todos] };
-    updateTodos(new_todo);
+    updated_todo[0].user = profile.sub || "";
+    updateTodos({ data: [...todos] });
+
+    // const originalTodos = [...todos];
+    // console.log("originalTodos", originalTodos);
+    // console.log("todos", todos);
+
+    // let updated_todo = originalTodos.filter((t) => t.id === id);
+    // let new_todo = Object.assign({}, updated_todo[0]);
+    // new_todo.item = todo;
+    // new_todo.user = profile.sub || "";
+    // updateTodos({ data: [...originalTodos] });
+    // console.log("Todos", todos);
+    // console.log("originalTodos", originalTodos);
 
     try {
-      const response = await fetch(`http://localhost:8000/todos/${id}`, {
+      let updateUrl = `http://localhost:8000/todos/${id}?user=`;
+      if (profile && profile.sub) {
+        updateUrl += profile.sub;
+      }
+      const response = await fetch(updateUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ item: todo }),
+        body: JSON.stringify({ item: todo, user: profile.sub || "" }),
       });
       const json = await response.json();
       if (json.error) {
         toast.error(json.error);
+        updateTodos({ data: originalTodos });
+      } else if (json.consoleError) {
+        console.log(json.consoleError);
         updateTodos({ data: originalTodos });
       } else {
         toast.success(json.message);
@@ -43,6 +66,7 @@ export default function UpdateTodos({ item, id }) {
 
   const handleChange = (event) => {
     setTodo(event.target.value);
+    console.log("handleChange", todos);
   };
 
   return (

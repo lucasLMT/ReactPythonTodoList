@@ -21,6 +21,7 @@ export default function DeleteTodo({ id }) {
       });
 
       const json = await response.json();
+      console.log(json);
       if (json.error) {
         toast.error(json.error);
         updateTodos({ data: originalTodos });

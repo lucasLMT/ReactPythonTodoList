@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from ..DataModels.models import TodoModel, UpdateTodoModel
 import configparser
 from fastapi.encoders import jsonable_encoder
+from operator import itemgetter
 
 
 def getMongoDB():
@@ -10,33 +11,38 @@ def getMongoDB():
 
 
 class MongoRepo:
-    def __init__(self, database, collection) -> None:
+    def __init__(self, database) -> None:
         self.client = MongoClient()
         self.database = self.client[database]
-        self.collection = self.database[collection]
 
     def close(self):
         self.client.close()
 
-    def list(self):
+    def list(self, props: dict):
+        collection, filter, projection = itemgetter(
+            "collection", "filter", "projection")(props)
+
         try:
-            todo = self.collection.find(
-                projection={"_id": 0, "id": "$_id", "item": 1})
+            todo = self.database[collection].find(filter,
+                                                  projection=projection)
             return {'data': list(todo)}
         except Exception as ex:
             return {
                 "consoleError": str(ex)
             }
 
-    def add(self, todo):
+    def add(self, props):
+        collection, filter, data = itemgetter(
+            "collection", "filter", "data")(props)
+
         try:
-            json_todo = jsonable_encoder(TodoModel(**todo))
-            if self.collection.find_one({"item": todo.get("item")}) is not None:
+            json_todo = jsonable_encoder(TodoModel(**data))
+            if self.database[collection].find_one(filter) is not None:
                 return {
                     "error": "Todo already exists"
                 }
 
-            created_todo = self.collection.insert_one(json_todo)
+            created_todo = self.database[collection].insert_one(json_todo)
             return {
                 "message": "Todo added.",
                 "id": created_todo.inserted_id
@@ -46,12 +52,14 @@ class MongoRepo:
                 "consoleError": str(ex)
             }
 
-    def update(self, id, todo):
+    def update(self, props):
+        collection, filter, data = itemgetter(
+            "collection", "filter", "data")(props)
         try:
-            not_empty_todo = {k: v for k, v in todo.items()
+            not_empty_todo = {k: v for k, v in data.items()
                               if v is not None}
             json_todo = jsonable_encoder(UpdateTodoModel(**not_empty_todo))
-            if self.collection.find_one_and_update({"_id": id}, {"$set": json_todo}) is not None:
+            if self.database[collection].find_one_and_update(filter, {"$set": json_todo}) is not None:
                 return {
                     "message": "Todo has been updated."
                 }
@@ -64,9 +72,11 @@ class MongoRepo:
                 "consoleError": str(ex)
             }
 
-    def delete(self, id):
+    def delete(self, props):
+        collection, filter = itemgetter(
+            "collection", "filter")(props)
         try:
-            result = self.collection.delete_one({"_id": id})
+            result = self.database[collection].delete_one(filter)
             if result.deleted_count:
                 return {
                     "message": "Todo has been deleted."
@@ -79,6 +89,14 @@ class MongoRepo:
                 "consoleError": str(ex)
             }
 
+# props = {
+#     "id": str, "12312312",
+#     "collection": str, "name_of_collection",
+#     "data": dict, "the data to add on database",
+#     "filter": dict, "specific conditions to add, update or delete the data"
+#     "projection": dict, "specify the fields that should be returned and how"
+# }
+
 
 class Repo:
     def __init__(self) -> None:
@@ -86,19 +104,19 @@ class Repo:
         parser.read("config.ini")
 
         if parser.get("database", "name") == "mongodb":
-            self.repo = MongoRepo("reactpythonapp", "todolist")
+            self.repo = MongoRepo("reactpythonapp")
 
     def close(self):
         self.repo.close()
 
-    def list(self):
-        return self.repo.list()
+    def list(self, props):
+        return self.repo.list(props)
 
-    def add(self, todo):
-        return self.repo.add(todo)
+    def add(self, props):
+        return self.repo.add(props)
 
-    def update(self, id, todo):
-        return self.repo.update(id, todo)
+    def update(self, props):
+        return self.repo.update(props)
 
-    def delete(self, id):
-        return self.repo.delete(id)
+    def delete(self, props):
+        return self.repo.delete(props)
