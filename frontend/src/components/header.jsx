@@ -40,7 +40,7 @@ const Header = () => {
             </li>
           </ul>
           <ul className="navbar-nav">
-            {profile.name ? (
+            {profile && (profile.googleId || profile.id) ? (
               <li className="nav-item dropdown">
                 <Link
                   className="nav-link dropdown-toggle"
@@ -49,13 +49,17 @@ const Header = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <img
-                    src={profile.picture}
-                    alt="user image"
-                    className="rounded-circle"
-                    width="40"
-                    height="40"
-                  />
+                  {profile.picture_url ? (
+                    <img
+                      src={profile.picture_url}
+                      alt="user image"
+                      className="rounded-circle"
+                      width="40"
+                      height="40"
+                    />
+                  ) : (
+                    profile.email
+                  )}
                 </Link>
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li>
@@ -67,7 +71,7 @@ const Header = () => {
               </li>
             ) : (
               <li className="nav-item">
-                <Link className="nav-link" to="/login">
+                <Link className="nav-link" to="/login/signin">
                   Login
                 </Link>
               </li>

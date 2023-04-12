@@ -21,7 +21,7 @@ export default function UpdateTodos({ item, id }) {
 
     let updated_todo = todos.filter((t) => t.id === id);
     updated_todo[0].item = todo;
-    updated_todo[0].user = profile.sub || "";
+    updated_todo[0].user = profile.googleId || profile.id || "";
     updateTodos({ data: [...todos] });
 
     // const originalTodos = [...todos];
@@ -38,15 +38,18 @@ export default function UpdateTodos({ item, id }) {
 
     try {
       let updateUrl = `http://localhost:8000/todos/${id}?user=`;
-      if (profile && profile.sub) {
-        updateUrl += profile.sub;
+      if (profile && (profile.googleId || profile.id)) {
+        updateUrl += profile.googleId || profile.id;
       }
       const response = await fetch(updateUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ item: todo, user: profile.sub || "" }),
+        body: JSON.stringify({
+          item: todo,
+          user: profile.googleId || profile.id || "",
+        }),
       });
       const json = await response.json();
       if (json.error) {

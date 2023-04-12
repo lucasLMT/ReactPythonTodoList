@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from .DataModels.models import TodoModel, UpdateTodoModel
 
 router = APIRouter()
 
@@ -12,6 +13,7 @@ async def get_todos(request: Request, user: str) -> dict:
     props = {
         "collection": collection,
         "filter": {"user": user},
+        "label": "Todo",
         "projection": {"_id": 0, "id": "$_id", "item": 1, "user": 1}
     }
     result = request.app.repo.list(props)
@@ -26,7 +28,9 @@ async def add_todo(request: Request, user: str, todo=Body(...)):
     props = {
         "collection": collection,
         "filter": {"item": todo.get("item"), "user": user},
-        "data": todo
+        "label": "Todo",
+        "data": todo,
+        "model": TodoModel
     }
     result = request.app.repo.add(props)
     if result.get("message") is not None:
@@ -42,8 +46,10 @@ async def update_todo(id: str, request: Request, user: str, todo=Body(...)):
     props = {
         "collection": collection,
         "filter": {"_id": id, "user": user},
+        "label": "Todo",
         "id": id,
-        "data": todo
+        "data": todo,
+        "model": UpdateTodoModel
     }
     result = request.app.repo.update(props)
     if result.get("message") is not None:
@@ -58,7 +64,8 @@ async def update_todo(id: str, request: Request, user: str, todo=Body(...)):
 async def delete_todo(id: str, request: Request):
     props = {
         "collection": collection,
-        "filter": {"_id": id}
+        "filter": {"_id": id},
+        "label": "Todo",
     }
     result = request.app.repo.delete(props)
     if result.get("message") is not None:

@@ -8,10 +8,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
-import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faRightToBracket,
+  faCalendarDays,
+} from "@fortawesome/free-solid-svg-icons";
 import App from "./App";
 
-library.add(fab, faRightToBracket);
+library.add(fab, faRightToBracket, faCalendarDays);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

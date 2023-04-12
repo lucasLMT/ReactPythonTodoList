@@ -11,14 +11,13 @@ export default function Todos() {
 
   const fetchTodos = async () => {
     let listUrl = "http://localhost:8000/todos?user=";
-    if (profile && profile.sub) {
-      listUrl += profile.sub;
+    if (profile && (profile.googleId || profile.id)) {
+      listUrl += profile.googleId || profile.id;
     }
-    console.log("fetchTodos", listUrl);
+
     const response = await fetch(listUrl);
     const todos = await response.json();
     setTodos(todos.data);
-    console.log(todos.data);
   };
 
   const updateTodos = (updated_todos) => {

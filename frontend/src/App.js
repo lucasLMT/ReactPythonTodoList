@@ -5,6 +5,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./components/login";
+import SignIn from "./components/signin";
+import SignUp from "./components/signup";
 import { userContext } from "./components/userContext";
 
 const App = () => {
@@ -18,8 +20,11 @@ const App = () => {
         <BrowserRouter>
           <Header />
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/todos" element={<Todos />} />
+            <Route path="login" element={<Login />}>
+              <Route path="signin" element={<SignIn />} />
+              <Route path="signup" element={<SignUp />} />
+            </Route>
+            <Route path="todos" element={<Todos />} />
             <Route path="/" element={<Todos />} />
           </Routes>
         </BrowserRouter>

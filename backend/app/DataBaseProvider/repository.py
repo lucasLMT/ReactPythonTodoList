@@ -32,19 +32,19 @@ class MongoRepo:
             }
 
     def add(self, props):
-        collection, filter, data = itemgetter(
-            "collection", "filter", "data")(props)
+        collection, filter, data, label, model = itemgetter(
+            "collection", "filter", "data", "label", "model")(props)
 
         try:
-            json_todo = jsonable_encoder(TodoModel(**data))
+            json_todo = jsonable_encoder(model(**data))
             if self.database[collection].find_one(filter) is not None:
                 return {
-                    "error": "Todo already exists"
+                    "error": f"{label} already exists."
                 }
 
             created_todo = self.database[collection].insert_one(json_todo)
             return {
-                "message": "Todo added.",
+                "message": f'{label} added.',
                 "id": created_todo.inserted_id
             }
         except Exception as ex:
@@ -53,19 +53,19 @@ class MongoRepo:
             }
 
     def update(self, props):
-        collection, filter, data = itemgetter(
-            "collection", "filter", "data")(props)
+        collection, filter, data, label, model = itemgetter(
+            "collection", "filter", "data", "label", "model")(props)
         try:
             not_empty_todo = {k: v for k, v in data.items()
                               if v is not None}
-            json_todo = jsonable_encoder(UpdateTodoModel(**not_empty_todo))
+            json_todo = jsonable_encoder(model(**not_empty_todo))
             if self.database[collection].find_one_and_update(filter, {"$set": json_todo}) is not None:
                 return {
-                    "message": "Todo has been updated."
+                    "message": f"{label} has been updated."
                 }
 
             return {
-                "error": "Todo not found."
+                "error": f"{label} not found."
             }
         except Exception as ex:
             return {
@@ -73,16 +73,16 @@ class MongoRepo:
             }
 
     def delete(self, props):
-        collection, filter = itemgetter(
-            "collection", "filter")(props)
+        collection, filter, label = itemgetter(
+            "collection", "filter", "label")(props)
         try:
             result = self.database[collection].delete_one(filter)
             if result.deleted_count:
                 return {
-                    "message": "Todo has been deleted."
+                    "message": f"{label} has been deleted."
                 }
             return {
-                "error": "Todo not found."
+                "error": f"{label} not found."
             }
         except Exception as ex:
             return {

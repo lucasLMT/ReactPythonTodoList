@@ -26,7 +26,7 @@ export default function AddTodo() {
 
     let new_todo = {
       item: item,
-      user: profile.sub || "",
+      user: profile.googleId || profile.id || "",
     };
 
     updateTodos({ data: [...todos, new_todo] });
@@ -34,8 +34,8 @@ export default function AddTodo() {
 
     try {
       let addUrl = "http://localhost:8000/todos?user=";
-      if (profile && profile.sub) {
-        addUrl += profile.sub;
+      if (profile && (profile.googleId || profile.id)) {
+        addUrl += profile.googleId || profile.id;
       }
       const response = await fetch(addUrl, {
         method: "POST",
