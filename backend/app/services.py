@@ -17,11 +17,16 @@ async def get_user(request: Request, user=Body(...)) -> dict:
         "projection": {"_id": 0, "id": "$_id", "email": 1}
     }
     result = request.app.repo.list(props)
+    if (len(result["data"]) == 0):
+        result["error"] = "Invalid user or password."
 
     if result.get("consoleError") is not None:
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"id": result.data.id, "email": result.data.email})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"id": result.data.id,
+                                     "email": result.data.email})
     else:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=result)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=result,
+                            headers={"x-auth-token": "", "access-control-expose-headers": "x-auth-token"})
 
 
 @router.post("/user/register")

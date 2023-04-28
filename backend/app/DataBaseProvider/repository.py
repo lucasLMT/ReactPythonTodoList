@@ -3,6 +3,7 @@ from ..DataModels.models import TodoModel, UpdateTodoModel
 import configparser
 from fastapi.encoders import jsonable_encoder
 from operator import itemgetter
+from os import getenv
 
 
 def getMongoDB():
@@ -12,7 +13,7 @@ def getMongoDB():
 
 class MongoRepo:
     def __init__(self, database) -> None:
-        self.client = MongoClient()
+        self.client = MongoClient(getenv("DB_URL") or "mongodb://127.0.0.1")
         self.database = self.client[database]
 
     def close(self):

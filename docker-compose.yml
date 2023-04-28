@@ -1,0 +1,30 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    # volumes:
+    #   - ./frontend:/app  
+  backend:
+    build: ./backend
+    ports:
+      - 8000:8000
+    environment:
+      DB_URL: mongodb://db
+    depends_on:
+      - db  
+    # volumes:
+    #   - ./backend:/app
+    # this property will overwrite the CMD command of Dockerfile to this service  
+    # command: ./docker-entrypoint.sh         
+  db:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    volumes:
+      - reactpythonapp:/data/db
+
+volumes:
+  reactpythonapp:    

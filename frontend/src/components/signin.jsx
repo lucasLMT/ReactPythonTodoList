@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { userContext } from "./userContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   useGoogleLogin,
   GoogleLogin,
   useGoogleOneTapLogin,
 } from "@react-oauth/google";
+import jwt_decode from "jwt-decode";
+import Joi from "joi";
 import "../login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import jwt_decode from "jwt-decode";
-import { useNavigate } from "react-router-dom";
-import Joi from "joi";
 
 const SignIn = () => {
   const { user, setUser } = useContext(userContext);
@@ -109,11 +110,15 @@ const SignIn = () => {
       });
       const user = await response.json();
       console.log(user);
-      setProfile({
-        id: user.data[0].id,
-        email: user.data[0].email,
-      });
-      navigate("/todos");
+      if (user.error) {
+        toast.error(user.error);
+      } else {
+        setProfile({
+          id: user.data[0].id,
+          email: user.data[0].email,
+        });
+        navigate("/todos");
+      }
     } catch (ex) {
       setProfile({});
       setLogin({ email: "", password: "", errors: {} });
