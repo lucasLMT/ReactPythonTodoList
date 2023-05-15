@@ -3,7 +3,7 @@ FROM node:lts-alpine3.17 as build-stage
 RUN addgroup app && adduser -S -G app app
 USER root
 WORKDIR /app
-COPY package*.json .
+COPY package*.json ./
 RUN npm install
 COPY . .
 
