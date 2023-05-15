@@ -39,8 +39,8 @@ jobs:
         IMAGE_BACKEND_TAG: backend_image
       run: |
         cd frontend
-        docker build . --file Dockerfile.prod --tag $IMAGE_FRONTEND_TAG
+        docker build . --file Dockerfile.prod --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_FRONTEND_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_FRONTEND_TAG        
         cd ../backend
-        docker build . --file Dockerfile.prod --tag $IMAGE_BACKEND_TAG        
+        docker build . --file Dockerfile.prod --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_BACKEND_TAG        
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_BACKEND_TAG
