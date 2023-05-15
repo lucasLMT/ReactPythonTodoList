@@ -1,0 +1,33 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    # volumes:
+    #   - ./frontend:/app  
+  backend:
+    build: ./backend
+    ports:
+      - 8000:8000
+    environment:
+      DB_URL: mongodb://db
+    depends_on:
+      - dynamodb-local  
+    # volumes:
+    #   - ./backend:/app
+    # this property will overwrite the CMD command of Dockerfile to this service  
+    # command: ./docker-entrypoint.sh         
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "9000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+volumes:
+  reactpythonapp:    

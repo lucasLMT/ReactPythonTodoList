@@ -2,8 +2,8 @@ FROM tiangolo/uvicorn-gunicorn:python3.11-slim
 
 RUN python -m venv /virtualenv && . /virtualenv/bin/activate
 
-COPY pythonRequirements.txt /tmp/pythonRequirements.txt
-RUN pip install -r /tmp/pythonRequirements.txt
+COPY pythonRequirements.prod.txt /tmp/pythonRequirements.prod.txt
+RUN pip install --no-cache -r /tmp/pythonRequirements.prod.txt
 
 COPY . /backend
 

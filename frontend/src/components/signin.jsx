@@ -175,8 +175,10 @@ const SignIn = () => {
                 const { sub, email, picture } = jwt_decode(
                   credentialResponse.credential
                 );
+                console.log(picture);
                 setProfile({
                   googleId: sub,
+                  id: sub,
                   email: email,
                   picture_url: picture,
                 });

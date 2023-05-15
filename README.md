@@ -27,4 +27,4 @@
 
 ### Additional information
 
-- There's no need to set up the database. Once the MongoDB is installed at default address, the internal API can handle the database and collection creation that will be used.
+- When using MongoDB, There's no need to set up the database. Once the MongoDB is installed at default address, the internal API can manage the database and create the collections that will be used.

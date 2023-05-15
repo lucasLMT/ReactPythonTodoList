@@ -1,0 +1,16 @@
+# Step one: Build
+FROM node:lts-alpine3.17 as build-stage
+RUN addgroup app && adduser -S -G app app
+USER root
+WORKDIR /app
+COPY package*.json .
+RUN npm install
+COPY . .
+
+RUN npm run build
+
+# Step two: Production
+FROM nginx:stable-alpine3.17 as production-stage
+COPY --from=build-stage /app/build /usr/share/nginx/html
+EXPOSE 80
+ENTRYPOINT [ "nginx", "-g", "daemon off;" ]

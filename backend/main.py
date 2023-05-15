@@ -14,13 +14,18 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "localhost:3000",
-    "http://localhost:3000/"
+    "http://localhost:3000/",
+    "http://localhost:80",
+    "localhost:80",
+    "http://localhost:80/",
+    "http://localhost"
 ]
 
 # this middleware is responsible for allow requests from a different protocol, IP address and port
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    # allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

@@ -63,7 +63,7 @@ const Header = () => {
                 </Link>
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li>
-                    <a className="dropdown-item" onClick={logOut} href="/todos">
+                    <a className="dropdown-item" onClick={logOut} href="/">
                       Logout
                     </a>
                   </li>
