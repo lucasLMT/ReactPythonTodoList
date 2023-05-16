@@ -119,9 +119,9 @@ class MongoRepo(RepoInterface):
 class DynamodbInitializer:
     def __init__(self, databaseName: str) -> None:
         self.dynamodb = boto3.resource(
-            'dynamodb', aws_access_key_id="AKIATWYHJSNOYOL3J37B",
-            aws_secret_access_key="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",
-            region_name='sa-east-1')
+            'dynamodb', aws_access_key_id=getenv("DYNAMO_KEY_ID"),
+            aws_secret_access_key=getenv("DYNAMO_ACCESS_KEY"),
+            region_name=getenv("DYNAMO_REGION"))
         # self.create_database()
 
     def create_database(self):
