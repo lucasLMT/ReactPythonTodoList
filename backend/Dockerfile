@@ -8,6 +8,7 @@ RUN pip install -r /tmp/pythonRequirements.txt
 COPY . /backend
 
 WORKDIR /backend
+
 EXPOSE 8000
 
 CMD ["python3", "main.py"]

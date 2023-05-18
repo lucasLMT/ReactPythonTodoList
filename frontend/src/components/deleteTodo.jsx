@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { toast } from "react-toastify";
 import { todosContext } from "./todosContext";
+import http from "../services/httpService";
 
 export default function DeleteTodo({ id }) {
   const { todos, updateTodos } = useContext(todosContext);
@@ -12,16 +13,9 @@ export default function DeleteTodo({ id }) {
       todos.splice(updated_todo.indexOf(updated_todo), 1);
       updateTodos({ data: [...todos] });
 
-      const response = await fetch(`http://localhost:8000/todos/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: { id: id },
-      });
-
+      const response = await http.delete(`todos/${id}`, { id: id });
       const json = await response.json();
-      console.log(json);
+
       if (json.error) {
         toast.error(json.error);
         updateTodos({ data: originalTodos });

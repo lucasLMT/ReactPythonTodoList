@@ -4,18 +4,19 @@ import { userContext } from "./userContext";
 import UpdateTodos from "./updateTodo";
 import AddTodo from "./addTodo";
 import DeleteTodo from "./deleteTodo";
+import http from "../services/httpService";
 
 export default function Todos() {
   const [todos, setTodos] = useState([]);
   const { profile } = useContext(userContext);
 
   const fetchTodos = async () => {
-    let listUrl = "http://localhost:8000/todos?user=";
+    let listUrl = "todos?user=";
     if (profile && (profile.googleId || profile.id)) {
       listUrl += profile.googleId || profile.id;
     }
 
-    const response = await fetch(listUrl);
+    const response = await http.get(listUrl);
     const todos = await response.json();
     setTodos(todos.data);
   };

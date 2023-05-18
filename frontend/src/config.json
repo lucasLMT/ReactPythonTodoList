@@ -1,0 +1,4 @@
+{
+    "apiProductionUrl": "http://todolist.hopto.org:8000/",
+    "apiDevelopmentUrl": "http://localhost:8000/"
+}

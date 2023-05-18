@@ -259,9 +259,7 @@ class DynamoRepo(RepoInterface):
             for key, value in json_todo.items():
                 updateExpression.append(f"#{key[0:2]} = :{key[0:2]}")
                 expressionAttributeNames[f"#{key[0:2]}"] = key
-                expressionAttributeValues[f":{key[0:2]}"] = {
-                    "S": value
-                }
+                expressionAttributeValues[f":{key[0:2]}"] = value
 
             filter["id"] = filter["_id"]
             del filter["_id"]

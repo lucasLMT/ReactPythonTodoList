@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "./common/input";
 import Joi from "joi";
 import { toast } from "react-toastify";
+import http from "../services/httpService";
 
 const SignUp = () => {
   const { user, setUser } = useContext(userContext);
@@ -72,18 +73,12 @@ const SignUp = () => {
     setLoginInfo(newLoginInfo);
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/services/user/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newLoginInfo.account),
-        }
+      const response = await http.post(
+        "services/user/register",
+        newLoginInfo.account
       );
-
       const json = await response.json();
+
       if (json.error) {
         toast.error(json.error);
         clearUser();

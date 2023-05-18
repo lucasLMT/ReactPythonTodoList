@@ -3,6 +3,7 @@ import { todosContext } from "./todosContext";
 import { userContext } from "./userContext";
 import { FormValidator } from "../validator";
 import { toast } from "react-toastify";
+import http from "../services/httpService";
 
 export default function AddTodo() {
   const [item, setItem] = useState("");
@@ -33,20 +34,14 @@ export default function AddTodo() {
     console.log("AddTodos", originalTodos);
 
     try {
-      let addUrl = "http://localhost:8000/todos?user=";
+      let addUrl = "todos?user=";
       if (profile && (profile.googleId || profile.id)) {
         addUrl += profile.googleId || profile.id;
       }
-      const response = await fetch(addUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(new_todo),
-      });
 
+      const response = await http.post(addUrl, new_todo);
       const json = await response.json();
-      console.log("json", json);
+
       if (json.error) {
         toast.error(json.error);
         updateTodos({ data: originalTodos });

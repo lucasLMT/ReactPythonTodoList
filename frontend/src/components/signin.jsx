@@ -2,15 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { userContext } from "./userContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  useGoogleLogin,
-  GoogleLogin,
-  useGoogleOneTapLogin,
-} from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import jwt_decode from "jwt-decode";
 import Joi from "joi";
 import "../login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import http from "../services/httpService";
 
 const SignIn = () => {
   const { user, setUser } = useContext(userContext);
@@ -25,38 +22,6 @@ const SignIn = () => {
       .label("Email"),
     password: Joi.required(),
   });
-
-  // const useTestGoogleLogin = useGoogleLogin({
-  //   onSuccess: (CodeResponse) => console.log("CodeResponse", CodeResponse),
-  //   onError: (error) => console.log("Error", error),
-  // });
-
-  // useEffect(() => {
-  //   async function login() {
-  //     console.log(user);
-  //     if (user.access_token) {
-  //       await fetch(
-  //         `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${user.access_token}`,
-  //             Accept: "application/json",
-  //           },
-  //         }
-  //       )
-  //         .then((res) => {
-  //           setProfile(res.data);
-  //           console.log(res.data);
-  //         })
-  //         .catch((err) => {
-  //           console.log(err);
-  //         });
-  //     }
-  //   }
-
-  //   login();
-  //   console.log(user);
-  // }, [user]);
 
   const validateProperty = ({ name, value }) => {
     const subSchema = schema.extract(name);
@@ -73,43 +38,13 @@ const SignIn = () => {
     setLogin(newLoginInfo);
   };
 
-  //   useEffect(() => {
-  // async function getGoogleUser() {
-  //   if (profile.sub) {
-  //     await fetch("http://localhost:8000/services/user", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(profile),
-  //     })
-  //       .then((res) => {
-  //         // setProfile(res.data);
-  //         // console.log(res.data);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   }
-  // }
-
-  // getGoogleUser();
-  // console.log("userEffectSignIn");
-  //   }, [profile]);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8000/services/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(login),
-      });
+      const response = await http.post("services/user", login);
       const user = await response.json();
-      console.log(user);
+
       if (user.error) {
         toast.error(user.error);
       } else {
@@ -191,31 +126,6 @@ const SignIn = () => {
             />
           </div>
         </div>
-        {/* <div className="d-grid mb-2">
-            <button
-              className="btn btn-google btn-login text-uppercase fw-bold"
-              // type="submit"
-            >
-              <FontAwesomeIcon
-                icon={["fab", "google"]}
-                className="me-2"
-              />
-              Sign in with Google
-            </button>
-          </div> */}
-        {/* <div className="d-grid"> */}
-        {/* <button
-              className="btn btn-facebook btn-login text-uppercase fw-bold"
-              type="submit"
-            >
-              <FontAwesomeIcon
-                icon={["fab", "facebook-f"]}
-                className="me-2"
-              />
-              Sign in with Facebook
-            </button>
-            <hr className="my-4" /> */}
-        {/* </div> */}
       </form>
     </div>
   );

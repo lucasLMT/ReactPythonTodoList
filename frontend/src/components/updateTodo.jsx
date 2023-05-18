@@ -3,6 +3,7 @@ import { todosContext } from "./todosContext";
 import { userContext } from "./userContext";
 import { FormValidator } from "../validator";
 import { toast } from "react-toastify";
+import http from "../services/httpService";
 
 export default function UpdateTodos({ item, id }) {
   const [todo, setTodo] = useState(item);
@@ -24,34 +25,14 @@ export default function UpdateTodos({ item, id }) {
     updated_todo[0].user = profile.googleId || profile.id || "";
     updateTodos({ data: [...todos] });
 
-    // const originalTodos = [...todos];
-    // console.log("originalTodos", originalTodos);
-    // console.log("todos", todos);
-
-    // let updated_todo = originalTodos.filter((t) => t.id === id);
-    // let new_todo = Object.assign({}, updated_todo[0]);
-    // new_todo.item = todo;
-    // new_todo.user = profile.sub || "";
-    // updateTodos({ data: [...originalTodos] });
-    // console.log("Todos", todos);
-    // console.log("originalTodos", originalTodos);
-
     try {
-      let updateUrl = `http://localhost:8000/todos/${id}?user=`;
+      let updateUrl = `todos/${id}?user=`;
       if (profile && (profile.googleId || profile.id)) {
         updateUrl += profile.googleId || profile.id;
       }
-      const response = await fetch(updateUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          item: todo,
-          user: profile.googleId || profile.id || "",
-        }),
-      });
+      const response = await http.put(updateUrl, updated_todo[0]);
       const json = await response.json();
+
       if (json.error) {
         toast.error(json.error);
         updateTodos({ data: originalTodos });
