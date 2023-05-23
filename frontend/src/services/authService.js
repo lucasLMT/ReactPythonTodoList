@@ -29,7 +29,6 @@ export async function createUser(email, password) {
     email: email,
     password: password,
   });
-  ß;
   localStorage.setItem("token", json.access_token);
   return json;
 }
