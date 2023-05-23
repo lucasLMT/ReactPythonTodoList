@@ -1,8 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { userContext } from "./userContext";
 import { googleLogout } from "@react-oauth/google";
+import { logout } from "../services/authService";
 
 const Header = () => {
   const { user, setUser } = useContext(userContext);
@@ -10,6 +11,7 @@ const Header = () => {
 
   const logOut = () => {
     googleLogout();
+    logout();
     setProfile({});
     setUser({});
   };

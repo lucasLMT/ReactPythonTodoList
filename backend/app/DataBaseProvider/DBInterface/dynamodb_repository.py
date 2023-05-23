@@ -74,12 +74,19 @@ class DynamoRepo(RepoInterface):
     #     "projection": {"_id": 0, "id": "$_id", "item": 1, "user": 1}
     # }
     def list(self, props: dict):
-        collection, filter, projection = itemgetter(
-            "collection", "filter", "projection")(props)
-
+        collection, filter = itemgetter(
+            "collection", "filter")(props)
+        
         scan_kwargs = {
-            'FilterExpression': Attr(list(filter.keys())[0]).eq(list(filter.values())[0]),
+            'FilterExpression': None,
         }
+
+        for key, value in filter.items():
+            filter_expression = Attr(key).eq(value)
+            if scan_kwargs['FilterExpression'] is None:
+                scan_kwargs['FilterExpression'] = filter_expression
+            else:
+                scan_kwargs['FilterExpression'] &= filter_expression
 
         try:
             table = self.client.Table(collection)
@@ -102,25 +109,24 @@ class DynamoRepo(RepoInterface):
             }
 
     def add(self, props):
-        collection, filter, data, label, model = itemgetter(
-            "collection", "filter", "data", "label", "model")(props)
+        collection, data, label, model = itemgetter(
+            "collection", "data", "label", "model")(props)
 
         try:
-            json_todo = jsonable_encoder(model(**data))
-            json_todo["id"] = json_todo["_id"]
+            if len(self.list(props)["data"]) != 0:
+                return {
+                    "error": f"{label} already exists."
+                }
+
+            json = jsonable_encoder(model(**data))
+            json["id"] = json["_id"]
             table = self.client.Table(collection)
             response = table.put_item(
-                Item=json_todo
+                Item=json
             )
-            # if self.database[collection].find_one(filter) is not None:
-            #     return {
-            #         "error": f"{label} already exists."
-            #     }
-
-            # created_todo = self.database[collection].insert_one(json_todo)
             return {
                 "message": f'{label} added.',
-                "id": json_todo.get("id")
+                "id": json.get("id")
             }
         except Exception as ex:
             return {

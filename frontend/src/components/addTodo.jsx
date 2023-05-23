@@ -23,7 +23,6 @@ export default function AddTodo() {
     }
 
     const originalTodos = [...todos];
-    console.log("originalTodos", originalTodos);
 
     let new_todo = {
       item: item,
@@ -31,7 +30,6 @@ export default function AddTodo() {
     };
 
     updateTodos({ data: [...todos, new_todo] });
-    console.log("AddTodos", originalTodos);
 
     try {
       let addUrl = "todos?user=";
@@ -46,7 +44,6 @@ export default function AddTodo() {
         toast.error(json.error);
         updateTodos({ data: originalTodos });
       } else if (json.consoleError) {
-        console.log(json.consoleError);
         updateTodos({ data: originalTodos });
       } else {
         new_todo.id = json.id;
@@ -55,7 +52,6 @@ export default function AddTodo() {
       }
     } catch (ex) {
       updateTodos({ data: originalTodos });
-      console.log(ex.message);
     }
   };
 

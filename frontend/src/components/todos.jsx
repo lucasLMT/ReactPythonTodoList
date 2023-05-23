@@ -5,30 +5,43 @@ import UpdateTodos from "./updateTodo";
 import AddTodo from "./addTodo";
 import DeleteTodo from "./deleteTodo";
 import http from "../services/httpService";
+import { getCurrentUser, logout } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 export default function Todos() {
   const [todos, setTodos] = useState([]);
-  const { profile } = useContext(userContext);
+  const { profile, setProfile } = useContext(userContext);
+  const navigate = useNavigate();
 
   const fetchTodos = async () => {
     let listUrl = "todos?user=";
-    if (profile && (profile.googleId || profile.id)) {
-      listUrl += profile.googleId || profile.id;
+    if (profile && profile.id) {
+      listUrl += profile.id;
     }
 
     const response = await http.get(listUrl);
     const todos = await response.json();
-    setTodos(todos.data);
+    setTodos(todos.data || []);
   };
 
   const updateTodos = (updated_todos) => {
-    console.log("updateTodos", updated_todos.data);
     setTodos(updated_todos.data);
   };
 
   useEffect(() => {
-    fetchTodos();
-    console.log("UseEffect");
+    const user = getCurrentUser();
+    if (user) {
+      setProfile({
+        id: user.sub,
+        email: user.email,
+        picture_url: user.picture_url || "",
+      });
+      fetchTodos();
+    } else {
+      logout();
+      setProfile({});
+      navigate("/login/signin");
+    }
   }, []);
 
   return (

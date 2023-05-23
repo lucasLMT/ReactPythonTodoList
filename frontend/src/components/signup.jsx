@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { userContext } from "./userContext";
 import "../login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,10 +6,9 @@ import { useNavigate } from "react-router-dom";
 import Input from "./common/input";
 import Joi from "joi";
 import { toast } from "react-toastify";
-import http from "../services/httpService";
+import { createUser } from "../services/authService";
 
 const SignUp = () => {
-  const { user, setUser } = useContext(userContext);
   const { profile, setProfile } = useContext(userContext);
   const navigate = useNavigate();
   const [loginInfo, setLoginInfo] = useState({
@@ -56,7 +55,7 @@ const SignUp = () => {
     if (error) {
       const errors = {};
       error.details.map((item) => {
-        errors[item.path[0]] = item.message;
+        return (errors[item.path[0]] = item.message);
       });
 
       return errors;
@@ -73,25 +72,20 @@ const SignUp = () => {
     setLoginInfo(newLoginInfo);
 
     try {
-      const response = await http.post(
-        "services/user/register",
-        newLoginInfo.account
+      const json = createUser(
+        newLoginInfo.account.email,
+        newLoginInfo.account.password
       );
-      const json = await response.json();
-
       if (json.error) {
         toast.error(json.error);
         clearUser();
       } else if (json.consoleError) {
-        console.log(json.consoleError);
         clearUser();
       } else {
         toast.success(json.message);
-        setProfile({ ...newLoginInfo.account, id: json.id });
         navigate("/todos");
       }
     } catch (ex) {
-      console.log(ex.message);
       clearUser();
     }
   };

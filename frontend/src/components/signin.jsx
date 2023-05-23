@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import { userContext } from "./userContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -7,10 +7,9 @@ import jwt_decode from "jwt-decode";
 import Joi from "joi";
 import "../login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import http from "../services/httpService";
+import { userLogin, socialLogin } from "../services/authService";
 
 const SignIn = () => {
-  const { user, setUser } = useContext(userContext);
   const { profile, setProfile } = useContext(userContext);
   const [login, setLogin] = useState({ email: "", password: "", errors: {} });
   const navigate = useNavigate();
@@ -42,23 +41,32 @@ const SignIn = () => {
     event.preventDefault();
 
     try {
-      const response = await http.post("services/user", login);
-      const user = await response.json();
-
-      if (user.error) {
-        toast.error(user.error);
+      const json = await userLogin(login.email, login.password);
+      if (json.error) {
+        toast.error(json.error);
       } else {
         setProfile({
-          id: user.data[0].id,
-          email: user.data[0].email,
+          id: json.sub,
+          email: json.email,
         });
         navigate("/todos");
       }
     } catch (ex) {
       setProfile({});
       setLogin({ email: "", password: "", errors: {} });
-      console.log(ex.message);
     }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    const { sub, email, picture } = jwt_decode(credentialResponse.credential);
+    const userData = await socialLogin(sub, email, picture);
+    setProfile({
+      googleId: sub,
+      id: userData.sub,
+      email: email,
+      picture_url: picture,
+    });
+    navigate("/todos");
   };
 
   return (
@@ -106,20 +114,7 @@ const SignIn = () => {
         <div className="d-grid">
           <div className="d-grid mb-2 align-center">
             <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const { sub, email, picture } = jwt_decode(
-                  credentialResponse.credential
-                );
-                console.log(picture);
-                setProfile({
-                  googleId: sub,
-                  id: sub,
-                  email: email,
-                  picture_url: picture,
-                });
-                console.log(profile);
-                navigate("/todos");
-              }}
+              onSuccess={handleGoogleLogin}
               onError={() => {
                 console.log("Login Failed");
               }}

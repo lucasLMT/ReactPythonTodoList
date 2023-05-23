@@ -2,6 +2,7 @@ from fastapi import APIRouter, Body, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from .DataModels.models import TodoModel, UpdateTodoModel
+from .Auth.auth import get_current_user
 
 router = APIRouter()
 
@@ -10,9 +11,14 @@ collection = "todolist"
 
 @router.get("/")
 async def get_todos(request: Request, user: str) -> dict:
+    try:
+        token = get_current_user(request.headers["x-auth-token"])  	
+    except HTTPException as ex:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Could not validate credentials"})
+
     props = {
         "collection": collection,
-        "filter": {"user": user},
+        "filter": {"user": user or token.get("sub")},
         "label": "Todo",
         "projection": {"_id": 0, "id": "$_id", "item": 1, "user": 1}
     }
@@ -25,6 +31,11 @@ async def get_todos(request: Request, user: str) -> dict:
 
 @router.post("/")
 async def add_todo(request: Request, user: str, todo=Body(...)):
+    try:
+        token = get_current_user(request.headers["x-auth-token"])  	
+    except HTTPException as ex:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Could not validate credentials"})
+
     props = {
         "collection": collection,
         "filter": {"item": todo.get("item"), "user": user},
@@ -43,6 +54,11 @@ async def add_todo(request: Request, user: str, todo=Body(...)):
 
 @router.put("/{id}")
 async def update_todo(id: str, request: Request, user: str, todo=Body(...)):
+    try:
+        token = get_current_user(request.headers["x-auth-token"])  	
+    except HTTPException as ex:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Could not validate credentials"})
+    
     props = {
         "collection": collection,
         "filter": {"_id": id, "user": user},
@@ -62,6 +78,11 @@ async def update_todo(id: str, request: Request, user: str, todo=Body(...)):
 
 @router.delete("/{id}")
 async def delete_todo(id: str, request: Request):
+    try:
+        token = get_current_user(request.headers["x-auth-token"])  	
+    except HTTPException as ex:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Could not validate credentials"})
+    
     props = {
         "collection": collection,
         "filter": {"_id": id},

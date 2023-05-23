@@ -37,20 +37,17 @@ export default function UpdateTodos({ item, id }) {
         toast.error(json.error);
         updateTodos({ data: originalTodos });
       } else if (json.consoleError) {
-        console.log(json.consoleError);
         updateTodos({ data: originalTodos });
       } else {
         toast.success(json.message);
       }
     } catch (ex) {
-      console.log(ex.message);
       updateTodos({ data: originalTodos });
     }
   };
 
   const handleChange = (event) => {
     setTodo(event.target.value);
-    console.log("handleChange", todos);
   };
 
   return (
